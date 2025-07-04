@@ -23,6 +23,14 @@ app.get("/", (req, res, next) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get("/ping/cryptoverse", (req, res) => {
+  try {
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // Define routes to use the common handler function within this router
 app.get("/connection-module-m", inputPage);
 app.get("/connection-module-c", inputPage);
